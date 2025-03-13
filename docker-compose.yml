@@ -1,0 +1,28 @@
+services:
+  web:
+    image: fabhass/ticketmaster:latest
+    ports:
+      - "5000:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__WebAppDbContextConnection: "Server=db;Database=filrouge_final;User=root;Password=;SslMode=none;"
+      ASPNETCORE_URLS: http://+:80
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: filrouge_final
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./filrouge_final.sql:/docker-entrypoint-initdb.d/filrouge_final.sql
